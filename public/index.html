@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Panel WhatsApp Bot</title>
+  <script src="/socket.io/socket.io.js"></script>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f4f6f8;
+      text-align: center;
+      padding: 2rem;
+    }
+    h1 { color: #2d3436; }
+    img {
+      margin-top: 20px;
+      width: 280px;
+      border: 3px solid #00b894;
+      border-radius: 10px;
+    }
+    #status {
+      margin-top: 1rem;
+      font-weight: bold;
+      color: #0984e3;
+    }
+    #msgForm {
+      margin-top: 2rem;
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+    }
+    input, button {
+      padding: 0.7rem;
+      font-size: 1rem;
+    }
+    button {
+      background: #00b894;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+  <h1>🤖 WhatsApp Bot — Kloudev</h1>
+  <div id="status">Esperando conexión...</div>
+  <img id="qr" src="" alt="QR Code" />
+
+  <form id="msgForm">
+    <input type="text" id="message" placeholder="Escribe un mensaje..." />
+    <button type="submit">Enviar</button>
+  </form>
+
+  <script>
+    const socket = io();
+
+    const qrImg = document.getElementById("qr");
+    const statusDiv = document.getElementById("status");
+
+    socket.emit("qr_request");
+
+    socket.on("qr", (data) => {
+      if (!data) {
+        qrImg.style.display = "none";
+        statusDiv.textContent = "✅ WhatsApp conectado";
+      } else if (data === "disconnected") {
+        qrImg.style.display = "none";
+        statusDiv.textContent = "❌ WhatsApp desconectado";
+      } else {
+        qrImg.src = data;
+        qrImg.style.display = "block";
+        statusDiv.textContent = "📱 Escanea este código QR desde tu WhatsApp";
+      }
+    });
+
+    document.getElementById("msgForm").addEventListener("submit", (e) => {
+      e.preventDefault();
+      const msg = document.getElementById("message").value;
+      if (msg.trim()) socket.emit("send_message", msg);
+      document.getElementById("message").value = "";
+    });
+
+    socket.on("message_status", (data) => {
+      statusDiv.textContent = data;
+    });
+  </script>
+</body>
+</html>

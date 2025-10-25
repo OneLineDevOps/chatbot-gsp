@@ -7,14 +7,12 @@ const { Client, LocalAuth } = pkg;
 export default function initBot(httpServer) {
   const io = new Server(httpServer);
   const client = new Client({
-    authStrategy: new LocalAuth({ dataPath: "./bot/sessions" }),
+    authStrategy: new LocalAuth(),
     puppeteer: {
       headless: true,
-      args: ["--no-sandbox", "--disable-setuid-sandbox"],
-      executablePath: "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome", // 🧠 ruta en macOS
-    },
+      args: ['--no-sandbox', '--disable-setuid-sandbox']
+    }
   });
-
   let lastQR = null;
 
   // 📱 QR generado
